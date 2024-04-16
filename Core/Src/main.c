@@ -246,7 +246,7 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOA_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(JDY23_PWRC_GPIO_Port, JDY23_PWRC_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(JDY23_PWRC_GPIO_Port, JDY23_PWRC_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin : JDY23_PWRC_Pin */
   GPIO_InitStruct.Pin = JDY23_PWRC_Pin;

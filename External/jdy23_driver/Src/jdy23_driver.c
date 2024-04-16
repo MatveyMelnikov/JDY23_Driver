@@ -58,12 +58,17 @@ static void set_determine_baudrate_cmd()
 
 static jdy23_status send_at_cmd(uint16_t input_data_size)
 {
-  jdy23_status status = jdy23_io_write((uint8_t*)buffer, strlen(buffer));
-
   uint16_t size_of_received_data = (input_data_size > JDY23_BUFFER_SIZE) ?
     JDY23_BUFFER_SIZE : input_data_size;
 
-  status |= jdy23_io_read((uint8_t*)buffer, size_of_received_data);
+  jdy23_status status = jdy23_io_write(
+    (uint8_t*)buffer,
+    strlen(buffer)
+  );
+  status |= jdy23_io_read(
+    (uint8_t*)buffer,
+    size_of_received_data
+  );
 
   // if (strstr(buffer, "OK") == NULL)
   //   return JDY23_ERROR;
@@ -114,7 +119,7 @@ jdy23_status jdy23_set_baudrate(jdy23_baudrate baudrate)
   //status |= hc06_io_set_baudrate(GET_BAUDRATE_INT(baudrate));
   //current_baudrate = baudrate;
 
-  return status;
+  // return status;
 }
 
 jdy23_baudrate jdy23_determine_baudrate(void)
@@ -125,12 +130,13 @@ jdy23_baudrate jdy23_determine_baudrate(void)
   set_determine_baudrate_cmd();
 
   jdy23_status status = send_at_cmd(JDY23_BAUD_RESPONSE_LEN);
-  if (status || strstr(buffer, "+BAUD") == NULL)
+  char *field = strstr(buffer, "+BAUD:");
+
+  if (status || field == NULL)
     return result;
 
-  result = (jdy23_baudrate)GET_NUM_FROM_CHAR(buffer + 6);
-
-  return result;
+  result = (jdy23_baudrate)GET_NUM_FROM_CHAR(field + 6);
+  return (result > 7) ? JDY23_UNDEFINED : result;
 }
 
 // // The name is limited in 20 characters

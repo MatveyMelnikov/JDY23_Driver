@@ -23,6 +23,7 @@ jdy23_status io_read(uint8_t *const data, const uint16_t data_size);
 jdy23_status io_external_read(uint8_t *const data, const uint16_t data_size);
 jdy23_status io_write(const uint8_t *const data, const uint16_t data_size);
 jdy23_status io_set_baudrate(const uint32_t baudrate);
+jdy23_status io_set_pwrc(bool is_high);
 
 // Specific functions for tests
 
@@ -46,7 +47,8 @@ int main(void)
     .io_read = io_read,
     .io_external_read = io_external_read,
     .io_write = io_write,
-    .io_set_baudrate = io_set_baudrate
+    .io_set_baudrate = io_set_baudrate,
+    .io_set_pwrc = io_set_pwrc
   });
 
   return UnityMain(0, NULL, run_all_tests);
@@ -121,7 +123,7 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOD_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
 
-  HAL_GPIO_WritePin(JDY23_PWRC_GPIO_Port, JDY23_PWRC_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(JDY23_PWRC_GPIO_Port, JDY23_PWRC_Pin, GPIO_PIN_SET);
 
   GPIO_InitStruct.Pin = JDY23_PWRC_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
@@ -161,6 +163,15 @@ jdy23_status io_set_baudrate(const uint32_t baudrate)
   huart2.Init.BaudRate = baudrate;
 
   return (jdy23_status)HAL_UART_Init(&huart2);
+}
+
+jdy23_status io_set_pwrc(bool is_high)
+{
+  HAL_GPIO_WritePin(
+    JDY23_PWRC_GPIO_Port,
+    JDY23_PWRC_Pin,
+    is_high ? GPIO_PIN_SET : GPIO_PIN_RESET
+  );
 }
 
 void unity_config_put_c(uint8_t a)

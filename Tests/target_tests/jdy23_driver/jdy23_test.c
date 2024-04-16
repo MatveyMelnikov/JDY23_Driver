@@ -22,6 +22,11 @@ TEST_TEAR_DOWN(jdy23_driver)
 TEST(jdy23_driver, check_link_success)
 {
   jdy23_status status = jdy23_check_link();
+  status |= jdy23_check_link();
+  status |= jdy23_check_link();
+  status |= jdy23_check_link();
+  status |= jdy23_check_link();
+  status |= jdy23_check_link();
 
   TEST_ASSERT_EQUAL(JDY23_OK, status);
 }

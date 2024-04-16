@@ -2,6 +2,7 @@
 #define JDY23_IO_H
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "jdy23_defs.h"
 
 typedef struct {
@@ -9,6 +10,7 @@ typedef struct {
   jdy23_status (*io_external_read)(uint8_t *const, const uint16_t);
   jdy23_status (*io_write)(const uint8_t *const, const uint16_t);
   jdy23_status (*io_set_baudrate)(const uint32_t);
+  jdy23_status (*io_set_pwrc)(bool);
 } jdy23_io_functions;
 
 void jdy23_io_create(jdy23_io_functions io_functions);

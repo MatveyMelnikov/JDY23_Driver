@@ -17,7 +17,8 @@ static bool is_io_functions_not_initialized()
     current_io_functions.io_read == NULL || 
     current_io_functions.io_write == NULL ||
     current_io_functions.io_external_read == NULL ||
-    current_io_functions.io_set_baudrate == NULL
+    current_io_functions.io_set_baudrate == NULL ||
+    current_io_functions.io_set_pwrc == NULL
   );
 }
 
@@ -63,7 +64,11 @@ jdy23_status jdy23_io_write(
   //   jdy23_uart, data, data_size, JDY23_TIMEOUT
   // );
 
-  return current_io_functions.io_write(data, data_size);
+  //current_io_functions.io_set_pwrc(false);
+  jdy23_status status = current_io_functions.io_write(data, data_size);
+  //current_io_functions.io_set_pwrc(true);
+
+  return status;
 }
 
 jdy23_status jdy23_io_read_external_data(
