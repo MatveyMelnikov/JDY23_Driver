@@ -1,0 +1,35 @@
+#ifndef JDY23_DEFS_H
+#define JDY23_DEFS_H
+
+enum
+{
+	JDY23_TIMEOUT = 100U,
+  //JDY23_AT_DELAY = 20U,
+  JDY23_BUFFER_SIZE = 40U,
+  JDY23_AT_VER_LEN = 16U,
+  JDY23_OK_RESPONSE_LEN = 3U,
+  JDY23_BAUD_RESPONSE_LEN = 7U
+};
+
+typedef enum
+{
+  JDY23_UNDEFINED = 0x7U,
+  JDY23_2400 = 0x6U,
+  JDY23_4800 = 0x5U,
+  JDY23_9600 = 0x4U,
+  JDY23_19200 = 0x3U,
+  JDY23_38400 = 0x2U,
+  JDY23_57600 = 0x1U,
+  JDY23_115200 = 0x0U,
+} jdy23_baudrate;
+
+typedef enum
+{
+  JDY23_OK = 0x00U,
+  JDY23_ERROR = 0x01U,
+  JDY23_BUSY = 0x02U,
+  JDY23_TIMEOUT_ERROR = 0x03U,
+  JDY23_OVERFLOW = 0x04U
+} jdy23_status;
+
+#endif
