@@ -22,6 +22,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "jdy23_driver.h"
+#include <string.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -60,7 +61,8 @@ jdy23_status io_read(uint8_t *const data, const uint16_t data_size);
 jdy23_status io_external_read(uint8_t *const data, const uint16_t data_size);
 jdy23_status io_write(const uint8_t *const data, const uint16_t data_size);
 jdy23_status io_set_baudrate(const uint32_t baudrate);
-jdy23_status io_set_pwrc(bool is_high);
+void io_set_pwrc(const bool is_high);
+void io_delay(const uint32_t delay);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -106,25 +108,18 @@ int main(void)
     .io_external_read = io_external_read,
     .io_write = io_write,
     .io_set_baudrate = io_set_baudrate,
-    .io_set_pwrc = io_set_pwrc
+    .io_set_pwrc = io_set_pwrc,
+    .io_delay = io_delay
   });
   
-  HAL_GPIO_WritePin(
-    JDY23_PWRC_GPIO_Port,
-    JDY23_PWRC_Pin,
-    GPIO_PIN_RESET
-  );
   jdy23_status status = jdy23_check_link();
-  //status |= jdy23_check_link();
-  HAL_GPIO_WritePin(
-    JDY23_PWRC_GPIO_Port,
-    JDY23_PWRC_Pin,
-    GPIO_PIN_SET
-  );
+  jdy23_check_link();
+  jdy23_check_link();
+  jdy23_check_link();
 
   status |= jdy23_set_baudrate(jdy23_determine_baudrate());
 
-   if (status)
+  if (status)
     Error_Handler();
 
   /* USER CODE END 2 */
@@ -135,6 +130,13 @@ int main(void)
   static uint8_t data[8];
   static char *string = "Hello from stm32!";
   uint32_t current_tick = HAL_GetTick();
+
+  status |= jdy23_check_link();
+  HAL_GPIO_WritePin(
+    JDY23_PWRC_GPIO_Port,
+    JDY23_PWRC_Pin,
+    GPIO_PIN_RESET
+  );
 
   jdy23_read(data, 1);
   while (1)
@@ -311,6 +313,11 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+  jdy23_receive_complete();
+}
+
 jdy23_status io_read(uint8_t *const data, const uint16_t data_size)
 {
   return (jdy23_status)HAL_UART_Receive(
@@ -339,13 +346,18 @@ jdy23_status io_set_baudrate(const uint32_t baudrate)
   return (jdy23_status)HAL_UART_Init(&huart2);
 }
 
-jdy23_status io_set_pwrc(bool is_high)
+void io_set_pwrc(const bool is_high)
 {
   HAL_GPIO_WritePin(
     JDY23_PWRC_GPIO_Port,
     JDY23_PWRC_Pin,
     is_high ? GPIO_PIN_SET : GPIO_PIN_RESET
   );
+}
+
+void io_delay(const uint32_t delay)
+{
+  HAL_Delay(delay);
 }
 
 /* USER CODE END 4 */
