@@ -11,11 +11,11 @@ void jdy23_destroy(void);
 jdy23_status jdy23_check_link(void);
 jdy23_status jdy23_set_baudrate(jdy23_baudrate baudrate);
 jdy23_baudrate jdy23_determine_baudrate(void);
-// hc06_status hc06_set_name(const char* const name);
+jdy23_status jdy23_set_name(const char* const name);
 // hc06_status hc06_set_pin(const uint16_t pin);
-// hc06_status hc06_write(const uint8_t *const data, const uint16_t size);
-// hc06_status hc06_read(uint8_t *const data, const uint16_t size);
-// hc06_status hc06_receive_complete(void);
-// bool hc06_is_data_received(void);
+jdy23_status jdy23_write(const uint8_t *const data, const uint16_t size);
+jdy23_status jdy23_read(uint8_t *const data, const uint16_t size);
+void jdy23_receive_complete(void);
+bool jdy23_is_data_received(void);
 
 #endif

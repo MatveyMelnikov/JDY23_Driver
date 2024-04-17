@@ -23,6 +23,10 @@ jdy23_status jdy23_io_write(
   const uint8_t *const data,
   const uint16_t data_size
 );
+jdy23_status jdy23_io_read_external_data(
+  uint8_t *const data,
+  const uint16_t data_size
+);
 jdy23_status jdy23_io_set_baudrate(const uint32_t baudrate);
 
 #endif

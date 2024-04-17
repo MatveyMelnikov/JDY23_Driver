@@ -21,7 +21,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "jdy23_driver.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -55,7 +55,12 @@ static void MX_DMA_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_USART2_UART_Init(void);
 /* USER CODE BEGIN PFP */
-
+// IO functions
+jdy23_status io_read(uint8_t *const data, const uint16_t data_size);
+jdy23_status io_external_read(uint8_t *const data, const uint16_t data_size);
+jdy23_status io_write(const uint8_t *const data, const uint16_t data_size);
+jdy23_status io_set_baudrate(const uint32_t baudrate);
+jdy23_status io_set_pwrc(bool is_high);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -96,15 +101,60 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
 
+  jdy23_create((jdy23_io_functions){
+    .io_read = io_read,
+    .io_external_read = io_external_read,
+    .io_write = io_write,
+    .io_set_baudrate = io_set_baudrate,
+    .io_set_pwrc = io_set_pwrc
+  });
+  
+  HAL_GPIO_WritePin(
+    JDY23_PWRC_GPIO_Port,
+    JDY23_PWRC_Pin,
+    GPIO_PIN_RESET
+  );
+  jdy23_status status = jdy23_check_link();
+  //status |= jdy23_check_link();
+  HAL_GPIO_WritePin(
+    JDY23_PWRC_GPIO_Port,
+    JDY23_PWRC_Pin,
+    GPIO_PIN_SET
+  );
+
+  status |= jdy23_set_baudrate(jdy23_determine_baudrate());
+
+   if (status)
+    Error_Handler();
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+
+  static uint8_t data[8];
+  static char *string = "Hello from stm32!";
+  uint32_t current_tick = HAL_GetTick();
+
+  jdy23_read(data, 1);
   while (1)
   {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+
+    if (jdy23_is_data_received())
+    {
+      (void)jdy23_write((uint8_t*)string, strlen(string) + 1);
+      //HAL_UART_Transmit(&huart1, (uint8_t*)data, 1, 100U);
+
+      jdy23_read(data, 1);
+    }
+
+    if (HAL_GetTick() - current_tick < 500U)
+      continue;
+    
+    current_tick = HAL_GetTick();
   }
   /* USER CODE END 3 */
 }
@@ -260,6 +310,43 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+
+jdy23_status io_read(uint8_t *const data, const uint16_t data_size)
+{
+  return (jdy23_status)HAL_UART_Receive(
+    &huart2, data, data_size, JDY23_TIMEOUT
+  );
+}
+
+jdy23_status io_external_read(uint8_t *const data, const uint16_t data_size)
+{
+  return (jdy23_status)HAL_UART_Receive_DMA(&huart2, data, data_size);
+}
+
+jdy23_status io_write(const uint8_t *const data, const uint16_t data_size)
+{
+  return (jdy23_status)HAL_UART_Transmit(
+    &huart2, data, data_size, JDY23_TIMEOUT
+  );
+}
+
+jdy23_status io_set_baudrate(const uint32_t baudrate)
+{
+  HAL_UART_Abort_IT(&huart2);
+  HAL_UART_DeInit(&huart2);
+  huart2.Init.BaudRate = baudrate;
+
+  return (jdy23_status)HAL_UART_Init(&huart2);
+}
+
+jdy23_status io_set_pwrc(bool is_high)
+{
+  HAL_GPIO_WritePin(
+    JDY23_PWRC_GPIO_Port,
+    JDY23_PWRC_Pin,
+    is_high ? GPIO_PIN_SET : GPIO_PIN_RESET
+  );
+}
 
 /* USER CODE END 4 */
 

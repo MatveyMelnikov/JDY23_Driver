@@ -14,6 +14,7 @@
 # target
 ######################################
 TARGET = JDY23_Driver
+JDY23_DRIVER = External/jdy23_driver
 
 
 ######################################
@@ -54,6 +55,10 @@ Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_flash.c \
 Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_flash_ex.c \
 Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_exti.c \
 Core/Src/system_stm32f1xx.c
+
+C_SOURCES += \
+$(JDY23_DRIVER)/Src/jdy23_driver.c \
+$(JDY23_DRIVER)/Src/jdy23_io.c
 
 # ASM sources
 ASM_SOURCES =  \
@@ -120,6 +125,8 @@ C_INCLUDES =  \
 -IDrivers/CMSIS/Device/ST/STM32F1xx/Include \
 -IDrivers/CMSIS/Include
 
+C_INCLUDES += \
+-I$(JDY23_DRIVER)/Inc
 
 # compile gcc flags
 ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
